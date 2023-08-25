@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <title>Juego de adivina tu número</title>
+
+  <style>
+    html {
+      font-family: sans-serif;
+    }
+    body {
+      width: 50%;
+      max-width: 800px;
+      min-width: 480px;
+      margin: 0 auto;
+    }
+    .message {
+      color: white;
+      padding: 3px;
+    }
+    .error {
+      background-color: red; /* Nuevo estilo para mensajes de error */
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Juego Adivina tu número</h1>
+
+  <p>Hemos seleccionado un número aleatorio entre 1 y 100. Trata de adivinar el número, en un total de 10 intentos o menos. No te preocupes, te diremos si el número es más alto o más bajo </p>
+
+  <div class="form">
+    <label for="guessField">Ingresa el número a adivinar: </label><input type="number" id="guessField" class="guessField">
+    <input type="button" value="Adivinar" class="guessSubmit">
+  </div>
+
+  <div class="resultParas">
+    <p class="guesses"></p>
+    <p class="message"></p> <!-- Cambié "lastResult" a "message" para unificar el estilo de los mensajes -->
+    <p class="lowOrHi"></p>
+  </div>
+
+  <script>
+    // Generar un número aleatorio entre 1 y 100
+    let randomNumber = Math.floor(Math.random() * 100) + 1;
+
+    const ATTEMPTS = 10; // Corregí la constante ATTEMPS a ATTEMPTS para usar nombres consistentes
+    const guesses = document.querySelector('.guesses');
+    const message = document.querySelector('.message'); // Cambié el nombre de la clase a "message" para unificar el estilo de los mensajes
+    const lowOrHi = document.querySelector('.lowOrHi');
+    const guessSubmit = document.querySelector('.guessSubmit');
+    const guessField = document.querySelector('.guessField');
+
+    let guessCount = 1;
+    let resetButton;
+
+    function checkGuess() {
+      let userGuess = parseInt(guessField.value);
+      if (isNaN(userGuess)) {
+        displayErrorMessage('Por favor, ingresa un número válido.'); // Llamada a la función para mostrar el mensaje de error
+        return;
+      }
+
+      if(guessCount === 1) {
+        guesses.textContent = 'Número aleatorio anterior: ';
+      }
+      guesses.textContent += userGuess + ' ';
+
+      if(userGuess === randomNumber) {
+        displayMessage('¡Felicitaciones! Adivinaste el número.', 'green');
+        lowOrHi.textContent = ''; // Limpiar el mensaje "El número es mayor/menor" si es correcto
+        setGameOver();
+      } else if(guessCount === ATTEMPTS) {
+        displayMessage('¡Perdiste! El número era ' + randomNumber + '.', 'red');
+        setGameOver();
+      } else {
+        displayMessage('Incorrecto.', 'red');
+        if(userGuess < randomNumber) {
+          lowOrHi.textContent = 'El número es mayor.';
+        } else if(userGuess > randomNumber) {
+          lowOrHi.textContent = 'El número es menor.';
+        }
+      }
+
+      guessCount++;
+      guessField.value = '';
+      guessField.focus();
+    }
+
+    guessSubmit.addEventListener('click', checkGuess);
+
+    function displayMessage(text, color) {
+      message.textContent = text;
+      message.style.backgroundColor = color;
+    }
+
+    function displayErrorMessage(text) {
+      displayMessage(text, 'red'); // Utilización de la función displayMessage para mostrar el mensaje de error resaltado
+    }
+
+    function setGameOver() {
+      guessField.disabled = true;
+      guessSubmit.disabled = true;
+      resetButton = document.createElement('button');
+      resetButton.textContent = 'Comenzar un nuevo juego';
+      document.body.appendChild(resetButton);
+      resetButton.addEventListener('click', resetGame);
+    }
+
+    function resetGame() {
+      guessCount = 1;
+      const resetParas = document.querySelectorAll('.resultParas p');
+      for(let i = 0; i < resetParas.length; i++) {
+        resetParas[i].textContent = ''; // Limpiar los mensajes anteriores
+      }
+      document.body.removeChild(resetButton);
+      guessField.disabled = false;
+      guessSubmit.disabled = false;
+      guessField.value = '';
+      guessField.focus();
+      message.style.backgroundColor = 'white';
+      randomNumber = Math.floor(Math.random() * 100) + 1; // Generar un nuevo número aleatorio
+    }
+  </script>
+</body>
+</html>
